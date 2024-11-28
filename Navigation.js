@@ -1,31 +1,80 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native'; // Ensure proper imports
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AceBusApp from './screens/dashbord'; // Make sure path is correct
-import List from './screens/list';          // Make sure path is correct
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import './i18n'; // Import i18n initialization
+import Dashbord from './screens/dashbord';
+import List from './screens/list';
 import BusDetail from './screens/bus_detail';
-import SearchList from './screens/search_list'; 
-import ProfileScreen from './screens/profile_screen'; 
-import LoginScreen from './screens/login_screen'; 
-import PasswordRecoveryScreen from './screens/password_recovery_screen'; 
+import SearchList from './screens/search_list';
+import ProfileDetail from './screens/profile_detail';
+import ProfileScreen from './screens/profile_screen';
+import LoginScreen from './screens/login_screen';
+import CustomHeader from './screens/customheader';
+import DirectRouteComponent from './components/directRouteDidplay';
+import TransferRouteDisplay from './components/routeDisplayComponent';
+// import TestDB  from './screens/testdb';
 const Stack = createStackNavigator();
 
-function AppNavigator () {
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      setIsLoggedIn(!!token); // Determine login status
+    };
+    checkLoginStatus();
+  }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="TN Bus">
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen} />
-        <Stack.Screen name="TN Bus" component={AceBusApp} />
-        <Stack.Screen name="list" component={List} />
-        <Stack.Screen name="BusDetail" component={BusDetail} />
-        <Stack.Screen name="SearchList" component={SearchList} />
+      <Stack.Navigator
+        screenOptions={{
+          header: ({ navigation, route }) => {
+            if (isLoggedIn) {
+              return (
+                <CustomHeader
+                  title={route.name}
+                  onMenuPress={() => navigation.goBack()}
+                  onLogoutPress={() => alert('Logout pressed')}
+                />
+              );
+            }
+            return null;
+          },
+        }}
+      >
+        {isLoggedIn === null ? (
+          <Stack.Screen name="Loading">
+            {() => (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>Loading...</Text>
+              </View>
+            )}
+          </Stack.Screen>
+        ) : isLoggedIn ? (
+          <>
+          
+          {/* <Stack.Screen name="testdb" component={TestDB}  /> */}
+            <Stack.Screen name="dashbord" component={Dashbord} />
+            <Stack.Screen name="list" component={List} />
+            <Stack.Screen name="BusDetail" component={BusDetail} />
+            <Stack.Screen name="SearchList" component={SearchList} />
+            <Stack.Screen name="ProfileDetail" component={ProfileDetail} />
+            <Stack.Screen name="DirectRouteComponent" component={DirectRouteComponent} />
+            <Stack.Screen name="TransferRouteDisplay" component={TransferRouteDisplay} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
-export default AppNavigator;
-
-
+export default App;

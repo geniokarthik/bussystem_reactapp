@@ -5,6 +5,10 @@ import api from '../api';
 
 
 const calculateDuration = (departureTime, arrivalTime) => {
+  if (!departureTime || !arrivalTime) {
+    return 'N/A'; // Return a fallback value if either time is missing
+  }
+
   const [depHours, depMinutes, depSeconds] = departureTime.split(':').map(Number);
   const [arrHours, arrMinutes, arrSeconds] = arrivalTime.split(':').map(Number);
 
@@ -64,49 +68,64 @@ const List = () => {
     );
   }
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <Text style={styles.busName}>{item.bus_name}</Text>
-        <Text style={styles.price}>£125</Text>
+  const renderItem = ({ item }) => {
+    const duration = calculateDuration(item.first_bus_departure_time, item.second_bus_arrival_time);
+  
+    return (
+      <View style={styles.card}>
+        <View style={styles.headerRow}>
+          <Text style={styles.busName}>Bus {item.first_bus}</Text>
+          <Text style={styles.price}>£125</Text>
+        </View>
+        <View style={styles.timeRow}>
+          <Text style={styles.time}>{item.first_bus_departure_time}</Text>
+          
+          { 
+            duration === '0h 0m' || duration === null ? (
+              <Text style={styles.duration}>Sorry</Text>
+            ) : (
+              <Text style={styles.duration}>{duration}</Text>
+            )
+          }
+  
+          <Text style={styles.time}>{item.second_bus_arrival_time}</Text>
+        </View>
+        <View style={styles.locationRow}>
+          <Text style={styles.location}>{item.departure_stop}</Text>
+          <Text style={styles.location}>{item.arrival_stop}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          { 
+            item.transfer_stop_count === '0' || item.transfer_stop_count === null ? (
+              <Text style={styles.info}>Transfers: 0</Text>
+            ) : (
+              <Text style={styles.info}>Transfers: {item.transfer_stop_count}</Text>
+            )
+          }
+          <Text style={styles.info}>One-way</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('BusDetail', { item })}>
+            <Text style={styles.detailsButton}>Details</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.timeRow}>
-        <Text style={styles.time}>{item.depature_time}</Text>
-        <Text style={styles.duration}>{calculateDuration(item.depature_time, item.arrival_time)}</Text>
-        <Text style={styles.time}>{item.arrival_time}</Text>
-      </View>
-      <View style={styles.locationRow}>
-        <Text style={styles.location}>{item.departure_stop}</Text>
-        <Text style={styles.location}>{item.arrival_stop}</Text>
-      </View>
-      <View style={styles.infoRow}>
-        <Text style={styles.info}>1 transfer</Text>
-        <Text style={styles.info}>2 Passengers</Text>
-        <Text style={styles.info}>One-way</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('BusDetail', { item })}>
-          <Text style={styles.detailsButton}>Details</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
+    );
+  };
+  
   return (
     <View style={styles.container}>
       <FlatList
-        data={data} // Use fetched data here
-        renderItem={renderItem}
-        keyExtractor={(item, index) => `${item.bus_number}_${item.depature_time}_${index}`}// Ensure unique keys
-        contentContainerStyle={styles.cardList}
-      />
+  data={data}
+  renderItem={renderItem}
+  keyExtractor={(item, index) => `${item.bus_number}_${item.depature_time}_${index}`}
+  initialNumToRender={10}
+  maxToRenderPerBatch={10}
+/>
       
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AceBusApp')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Dashbord')}>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('List')}>
-          <Text style={styles.navText}>List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Profile')}>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>

@@ -1,11 +1,15 @@
 import React from 'react';
 import {View, Text, StyleSheet, ScrollView, FlatList} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RouteDisplay from '../components/routeDisplayComponent';
+import MapView from '../components/mapViewComponent';
 
 const calculateDuration = (departureTime, arrivalTime) => {
-  const [depHours, depMinutes, depSeconds] = departureTime
-    .split(':')
-    .map(Number);
+  if (!departureTime || !arrivalTime) {
+    return 'N/A'; // Return a fallback value if either time is missing
+  }
+
+  const [depHours, depMinutes, depSeconds] = departureTime.split(':').map(Number);
   const [arrHours, arrMinutes, arrSeconds] = arrivalTime.split(':').map(Number);
 
   const depDate = new Date();
@@ -16,34 +20,25 @@ const calculateDuration = (departureTime, arrivalTime) => {
 
   const durationMs = arrDate - depDate;
   const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
-  const durationMinutes = Math.floor(
-    (durationMs % (1000 * 60 * 60)) / (1000 * 60),
-  );
+  const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
 
   return `${durationHours}h ${durationMinutes}m`;
 };
 
 const SearchList = ({route}) => {
   const busData = route?.params?.item ? [route.params.item] : [];
-  const departureTime = busData[0].depature_time; // "05:00:00"
-  const arrivalTime = busData[0].arrival_time; // "07:00:00"
+  const departureTime = busData[0].first_bus_departure_time; // "05:00:00"
+  const arrivalTime = busData[0].second_bus_arrival_time; // "07:00:00"
   const duration = calculateDuration(departureTime, arrivalTime);
 
   // Header component for the FlatList
   const ListHeader = () => (
-    <View style={styles.mapContainer}>
-      <Text style={styles.mapLabel}>Map View Placeholder</Text>
-      <View style={styles.locationLine}>
-        <Text style={styles.location}>{busData[0].departure_stop}</Text>
-        <Text style={styles.location}>{busData[0].arrival_stop}</Text>
-      </View>
-    </View>
+    <MapView busData={busData}/>
   );
 
-  // Footer component for the FlatList
   const ListFooter = () => (
-    <View style={styles.footerContainer}>
-      <Text style={styles.footerText}>End of Route Details</Text>
+    <View >
+      <RouteDisplay></RouteDisplay>
     </View>
   );
 
@@ -60,9 +55,9 @@ const SearchList = ({route}) => {
 
           {/* Time and Duration Row */}
           <View style={styles.timeRow}>
-            <Text style={styles.time}>{busData[0].depature_time}</Text>
+            <Text style={styles.time}>{busData[0].first_bus_departure_time}</Text>
             <Text style={styles.duration}>{duration}</Text>
-            <Text style={styles.time}>{busData[0].arrival_time}</Text>
+            <Text style={styles.time}>{busData[0].second_bus_arrival_time}</Text>
           </View>
 
           {/* Departure and Arrival Stops */}
@@ -74,11 +69,7 @@ const SearchList = ({route}) => {
           </View>
 
           {/* Info Row */}
-          <View style={styles.infoRow}>
-            <Text style={styles.info}>1 transfer</Text>
-            <Text style={styles.info}>2 Passengers</Text>
-            <Text style={styles.info}>One-way</Text>
-          </View>
+         
 
           {/* Stop Details */}
           <View style={styles.stopDetails}>
@@ -109,6 +100,7 @@ const SearchList = ({route}) => {
               }}
             />
           </View>
+         
         </View>
       )}
     </ScrollView>
@@ -181,8 +173,6 @@ const styles = StyleSheet.create({
   icon: {marginRight: 10},
   stopName: {fontSize: 14, fontWeight: 'bold'},
   stopTime: {fontSize: 12, color: '#888'},
-  footerContainer: {padding: 16, alignItems: 'center'},
-  footerText: {fontSize: 14, color: '#888'},
 });
 
 export default SearchList;

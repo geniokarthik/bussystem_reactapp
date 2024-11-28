@@ -1,5 +1,5 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,26 +9,49 @@ import {
   ScrollView,
   Alert,
   Image,
+  FlatList,
 } from 'react-native';
-import axios from 'axios';
-// Ensure you've installed axios using npm or yarn
-import profileImage from '../assets/profile_image.jpg';
+import axios from 'axios'; // Ensure axios is installed
+import profileImage from '../assets/profile_image.jpg'; // Your local profile image
+import { openDatabase } from './db'; // Import the database functions
 
-const AceBusApp = () => {
+const Dashbord = () => {
   const navigation = useNavigation();
   const [tripType, setTripType] = useState('One-way');
   const [passengerCount] = useState(2);
   const [departureCity, setDepartureCity] = useState('');
   const [destinationCity, setDestinationCity] = useState('');
   const [departureDate, setDepartureDate] = useState('');
+  const [users, setUsers] = useState([]); // State to hold fetched data
+
+  // Fetch data from SQLite
+  const fetchUsers = async () => {
+    try {
+      const db = await openDatabase(); // Open the database
+      console.log(db);
+      const [results] = await db.executeSql("SELECT * FROM Users;"); // Execute query
+      const rows = results.rows.raw(); // Convert to array
+      setUsers(rows); // Set fetched data
+      console.log(rows);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      Alert.alert("Error", "Failed to fetch data from the database.");
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   const handleSearch = async () => {
     try {
-      const response = await axios.post('http://10.0.2.2:8000/api/search', {
+      const response = await axios.post('http://10.0.2.2:8000/api/list', {
         departureCity: departureCity,
         destinationCity: destinationCity,
        // departureDate: departureDate,
       });
-      console.log(response.data);
+      //console.log(response.data);
       if (response.status === 200) {
        // Alert.alert('Success', 'Search results fetched successfully!');
        navigation.navigate('SearchList', { data: response.data });
@@ -95,7 +118,7 @@ const AceBusApp = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+      <TouchableOpacity style={styles.searchButton} onPress={fetchUsers}>
         <Text style={styles.searchButtonText}>Search</Text>
       </TouchableOpacity>
 
@@ -114,13 +137,13 @@ const AceBusApp = () => {
         
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => navigation.navigate('list')}>
-          <Text style={styles.navText}>List</Text>
+          onPress={() => navigation.navigate('ProfileDetail')}>
+          <Text style={styles.navText}>Profile Detail</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
-          onPress={() => navigation.navigate('Profile')}>
-          <Text style={styles.navText}>Profile</Text>
+          onPress={() => navigation.navigate('testdb')}>
+          <Text style={styles.navText}>testdb</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -238,4 +261,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AceBusApp;
+export default Dashbord;
