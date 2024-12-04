@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 import RNFS from 'react-native-fs';
-import { DATABASE_NAME, SQL_FILE_PATH } from '../config';
+import { DATABASE_NAME, SQL_FILE_PATH } from  '../common/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SQLite.DEBUG(true);

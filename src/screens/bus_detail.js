@@ -1,8 +1,9 @@
 import React from 'react';
 import {View, Text, StyleSheet, ScrollView, FlatList} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import RouteDisplay from '../components/routeDisplayComponent';
+import DirectRouteComponent from '../components/routeDisplayComponent';
 import MapView from '../components/mapViewComponent';
+
 
 const calculateDuration = (departureTime, arrivalTime) => {
   if (!departureTime || !arrivalTime) {
@@ -38,7 +39,7 @@ const SearchList = ({route}) => {
 
   const ListFooter = () => (
     <View >
-      <RouteDisplay></RouteDisplay>
+      <DirectRouteComponent ></DirectRouteComponent >
     </View>
   );
 

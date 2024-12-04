@@ -2,15 +2,14 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const DirectRouteComponent = ({ route }) => {
-  const { data } = route.params || {}; // Extract the `data` object from route params
-  const busData = data?.busdata || {}; // Extract `busdata` from `data`
-  const stops = data?.data || []; // Extract `data` array from `data`
-  
-  console.log('Bus Data:', busData);
-  console.log('Stops:', stops);
+const DirectRouteComponent  = ({ route }) => {
+  const { data = [], busdata = {} } = route.params || {};  // 'data' is the array of stops here
 
-  if (!Array.isArray(stops) || stops.length === 0) {
+  console.log('Bus Data:', busdata);  
+  console.log('Stops:', data);
+
+  // Ensure 'data' is an array of stops and not empty
+  if (!Array.isArray(data) || data.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>No stops available to display.</Text>
@@ -26,21 +25,21 @@ const DirectRouteComponent = ({ route }) => {
           <MaterialIcons name="location-on" size={24} color="#007bff" />
           <View style={styles.stopTextContainer}>
             <Text style={styles.stopText}>
-              {busData.departure_stop || 'Unknown Departure Stop'}
+              {busdata.departure_stop || 'Unknown Departure Stop'}
             </Text>
             <Text style={styles.timeText}>
-              {stops[0]?.arrival_time || 'N/A'} - {stops[0]?.departure_time || 'N/A'}
+              {data[0]?.arrival_time || 'N/A'} - {data[0]?.departure_time || 'N/A'}
             </Text>
           </View>
         </View>
 
         {/* First Bus Route */}
         <View style={styles.busContainer}>
-          <Text style={styles.busText}>First Bus: {busData.first_bus || 'N/A'}</Text>
+          <Text style={styles.busText}>First Bus: {busdata.first_bus || 'N/A'}</Text>
         </View>
 
         {/* Stops for First Bus */}
-        {stops.map((stop, index) => (
+        {data.map((stop, index) => (
           <View key={index} style={styles.routeContainer}>
             <MaterialIcons name="directions-bus" size={20} color="#1E90FF" />
             <View style={styles.stopInfo}>
@@ -59,10 +58,10 @@ const DirectRouteComponent = ({ route }) => {
           <MaterialIcons name="location-on" size={24} color="#d32f2f" />
           <View style={styles.stopTextContainer}>
             <Text style={styles.stopText}>
-              {busData.arrival_stop || 'Unknown Arrival Stop'}
+              {busdata.arrival_stop || 'Unknown Arrival Stop'}
             </Text>
             <Text style={styles.timeText}>
-              {stops[stops.length - 1]?.arrival_time || 'N/A'} - Your destination
+              {data[data.length - 1]?.arrival_time || 'N/A'} - Your destination
             </Text>
           </View>
         </View>

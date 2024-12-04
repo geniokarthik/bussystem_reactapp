@@ -3,16 +3,14 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const TransferRouteDisplayComponent = ({ route }) => {
-  const { data } = route.params || {}; // Extract the `data` object from route params
-  const busData = data?.busdata || {}; // Extract `busdata` from `data`
-  const stops = data?.data || []; // Extract `data` array from `data`
+  const { data = [], busdata = {} } = route.params || {};
 
-  console.log('Bus Data:', busData);
-  console.log('Stops:', stops);
+  console.log('Bus Data:', busdata);
+  console.log('Stops:', data);
 
   // Separate stops into first and second bus legs
-  const firstBusStops = stops.filter(stop => stop.leg === 'First Bus');
-  const secondBusStops = stops.filter(stop => stop.leg === 'Second Bus');
+  const firstBusStops = data.filter(stop => stop.leg === 'First Bus');
+  const secondBusStops = data.filter(stop => stop.leg === 'Second Bus');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -22,7 +20,7 @@ const TransferRouteDisplayComponent = ({ route }) => {
           <View style={styles.stopContainer}>
             <MaterialIcons name="location-on" size={24} color="#007bff" />
             <View style={styles.stopTextContainer}>
-              <Text style={styles.stopText}>{busData.departure_stop}</Text>
+              <Text style={styles.stopText}>{busdata.departure_stop}</Text>
               <Text style={styles.timeText}>
                 {firstBusStops[0]?.departure_time || 'N/A'} -{' '}
                 {firstBusStops[0]?.arrival_time || 'N/A'}
@@ -33,7 +31,7 @@ const TransferRouteDisplayComponent = ({ route }) => {
 
         {/* First Bus Route */}
         <View style={styles.busContainer}>
-          <Text style={styles.busText}>First Bus: {busData.first_bus}</Text>
+          <Text style={styles.busText}>First Bus: {busdata.first_bus}</Text>
         </View>
 
         {/* Stops for First Bus */}
@@ -52,13 +50,13 @@ const TransferRouteDisplayComponent = ({ route }) => {
         {/* Transfer to Next Bus */}
         <View style={styles.transferContainer}>
           <Text style={styles.transferText}>
-            Transfer at {busData.transfer_stop}
+            Transfer at {busdata.transfer_stop}
           </Text>
         </View>
 
         {/* Next Bus Route */}
         <View style={styles.busContainer}>
-          <Text style={styles.busText}>Second Bus: {busData.second_bus}</Text>
+          <Text style={styles.busText}>Second Bus: {busdata.second_bus}</Text>
         </View>
 
         {/* Stops for Second Bus */}
@@ -79,7 +77,7 @@ const TransferRouteDisplayComponent = ({ route }) => {
           <View style={styles.stopContainer}>
             <MaterialIcons name="location-on" size={24} color="#d32f2f" />
             <View style={styles.stopTextContainer}>
-              <Text style={styles.stopText}>{busData.arrival_stop}</Text>
+              <Text style={styles.stopText}>{busdata.arrival_stop}</Text>
               <Text style={styles.timeText}>
                 {secondBusStops[secondBusStops.length - 1]?.departure_time || 'N/A'} -{' '}
                 {secondBusStops[secondBusStops.length - 1]?.arrival_time || 'N/A'}
